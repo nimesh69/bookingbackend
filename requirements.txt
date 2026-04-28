@@ -1,0 +1,70 @@
+Django==5.0.6
+djangorestframework==3.15.2
+django-filter==24.2
+
+# Auth
+
+djangorestframework-simplejwt==5.3.1
+
+# CORS (React frontend)
+
+django-cors-headers==4.4.0
+
+# Database
+
+psycopg2-binary==2.9.9
+
+# Environment variables
+
+python-decouple==3.8
+
+# Image upload (venue images)
+
+Pillow==10.4.0
+
+# API documentation
+
+drf-spectacular==0.27.2
+
+# Filtering / search
+
+django-filter==24.2
+
+# Redis (chat, notifications, caching)
+
+redis==5.0.7
+django-redis==5.4.0
+
+# Websocket chat
+
+channels==4.1.0
+channels-redis==4.2.0
+daphne==4.1.2
+
+# Background tasks (notifications, emails)
+
+celery==5.4.0
+
+# HTTP requests (payment gateways)
+
+requests==2.32.3
+
+# Timezone handling
+
+pytz==2024.1
+
+# Slug support
+
+python-slugify==8.0.4
+
+# Production server
+
+gunicorn==22.0.0
+
+# Dev tools (optional)
+
+django-extensions==3.2.3
+python-dotenv
+requests
+django-allauth 
+dj-rest-auth
