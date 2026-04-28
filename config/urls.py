@@ -16,16 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('dj_rest_auth.urls')),
     path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
     path('api/social/', include('allauth.socialaccount.urls')),
-    path('api/venues/', include('venues.urls')),
-    path('api/bookings/', include('bookings.urls')),
-    path('api/payments/', include('payments.urls')),
-    path('api/reviews/', include('reviews.urls')),
-    path('api/chat/', include('chat.urls')),
-    path('api/notifications/', include('notifications.urls')),
+    # path('api/venues/', include('venues.urls')),
+    # path('api/bookings/', include('bookings.urls')),
+    # path('api/payments/', include('payments.urls')),
+    # path('api/reviews/', include('reviews.urls')),
+    # path('api/chat/', include('chat.urls')),
+    # path('api/notifications/', include('notifications.urls')),
 ]
