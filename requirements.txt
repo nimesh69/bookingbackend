@@ -68,3 +68,5 @@ python-dotenv
 requests
 django-allauth 
 dj-rest-auth
+django-appointment
+django_q2

@@ -1,0 +1,1651 @@
+<style>
+  :root {
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f8fafc;
+    --color-background-success: #ecfdf5;
+    --color-background-info: #eff6ff;
+    --color-background-warning: #fffbeb;
+    --color-background-danger: #fef2f2;
+    --color-border-tertiary: #e2e8f0;
+    --color-text-primary: #0f172a;
+    --color-text-secondary: #475569;
+    --color-text-tertiary: #94a3b8;
+    --color-text-success: #059669;
+    --color-text-info: #2563eb;
+    --color-text-warning: #d97706;
+    --color-text-danger: #dc2626;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --font-sans: "Inter", -apple-system, system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: var(--font-sans);
+    background: #f1f5f9;
+    color: var(--color-text-primary);
+    line-height: 1.5;
+    padding: 20px;
+  }
+
+  /* Tab Navigation */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 0;
+    border-bottom: 2px solid var(--color-border-tertiary);
+    margin-bottom: 24px;
+    white-space: nowrap;
+  }
+  .tab {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 18px;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    margin-bottom: -2px;
+  }
+  .tab:hover {
+    color: var(--color-text-info);
+  }
+  .tab.active {
+    color: var(--color-text-info);
+    border-bottom-color: var(--color-text-info);
+  }
+
+  .panel {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .panel.active {
+    display: block;
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Sections */
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-tertiary);
+    margin: 32px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: "";
+    height: 1px;
+    background: var(--color-border-tertiary);
+    flex: 1;
+  }
+
+  /* Grid Layouts */
+  .grid2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  /* Cards & Items */
+  .card,
+  .stack-item,
+  .model-block,
+  .arch-box {
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+  }
+  .card:hover,
+  .stack-item:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Model Styling (DB Schema) */
+  .model-header {
+    background: var(--color-background-secondary);
+    padding: 10px 14px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--color-border-tertiary);
+    color: var(--color-text-primary);
+  }
+  .model-field {
+    display: flex;
+    padding: 8px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    align-items: center;
+    font-size: 13px;
+  }
+  .field-name {
+    font-family: var(--font-mono);
+    color: #e11d48;
+    width: 35%;
+    font-weight: 600;
+  }
+  .field-type {
+    font-family: var(--font-mono);
+    color: #2563eb;
+    width: 25%;
+    font-size: 12px;
+  }
+  .field-note {
+    color: var(--color-text-tertiary);
+    font-style: italic;
+    flex: 1;
+  }
+
+  /* API Rows */
+  .api-row {
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .method {
+    font-family: var(--font-mono);
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    width: 55px;
+    text-align: center;
+  }
+  .api-path {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 13px;
+    color: #334155;
+  }
+
+  /* Badges */
+  .badge {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .pk,
+  .fk,
+  .unique {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    margin-left: 4px;
+  }
+
+  /* Alerts/Tips */
+  .tip,
+  .warn {
+    padding: 16px;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 20px;
+    font-size: 14px;
+    border-left: 4px solid;
+  }
+  .tip {
+    border-left-color: var(--color-text-info);
+    background: var(--color-background-info);
+    color: #1e40af;
+  }
+  .warn {
+    border-left-color: var(--color-text-warning);
+    background: var(--color-background-warning);
+    color: #92400e;
+  }
+</style>
+
+<div style="padding: 16px 0">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('stack')">Stack verdict</div>
+    <div class="tab" onclick="showTab('db')">DB models</div>
+    <div class="tab" onclick="showTab('api')">API endpoints</div>
+    <div class="tab" onclick="showTab('realtime')">Realtime & chat</div>
+    <div class="tab" onclick="showTab('arch')">Architecture</div>
+    <div class="tab" onclick="showTab('scale')">Scalability</div>
+  </div>
+
+  <!-- STACK TAB -->
+  <div id="tab-stack" class="panel active">
+    <div class="tip">
+      Django + PostgreSQL + React/RN 
+    </div>
+    <div class="section-title">Backend</div>
+    <div class="grid2">
+      <div class="stack-item">
+        <div
+          class="stack-icon"
+          style="
+            background: #092e20;
+            color: #44b78b;
+            font-size: 13px;
+            font-weight: 700;
+          "
+        >
+          Dj
+        </div>
+        <div>
+          <div style="font-size: 13px; font-weight: 500">Django + DRF</div>
+          <div
+            style="
+              font-size: 11px;
+              color: var(--color-text-secondary);
+              margin-top: 3px;
+            "
+          >
+            REST APIs, auth, ORM, admin dashboard for owners. Battle-tested,
+            fast to build. <span class="badge badge-green">recommended</span>
+          </div>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background: #194b3a; color: #5dcaa5">
+          
+        </div>
+        <div>
+          <div style="font-size: 13px; font-weight: 500">Django Channels</div>
+          <div
+            style="
+              font-size: 11px;
+              color: var(--color-text-secondary);
+              margin-top: 3px;
+            "
+          >
+            WebSocket support for live chat rooms. ASGI-based, works alongside
+            DRF. <span class="badge badge-green">needed</span>
+          </div>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background: #1a365d; color: #63b3ed">
+          
+        </div>
+        <div>
+          <div style="font-size: 13px; font-weight: 500">PostgreSQL</div>
+          <div
+            style="
+              font-size: 11px;
+              color: var(--color-text-secondary);
+              margin-top: 3px;
+            "
+          >
+            Perfect. Use JSONB for flexible sport metadata. Excellent indexing
+            for slot queries. <span class="badge badge-green">recommended</span>
+          </div>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background: #2d1b00; color: #e88e35">
+          
+        </div>
+        <div>
+          <div style="font-size: 13px; font-weight: 500">Redis</div>
+          <div
+            style="
+              font-size: 11px;
+              color: var(--color-text-secondary);
+              margin-top: 3px;
+            "
+          >
+            Channel layer for WebSocket, caching slot availability, Celery
+            broker. Essential. <span class="badge badge-green">needed</span>
+          </div>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background: #1f3d1f; color: #7dc87d">
+          
+        </div>
+        <div>
+          <div style="font-size: 13px; font-weight: 500">Celery</div>
+          <div
+            style="
+              font-size: 11px;
+              color: var(--color-text-secondary);
+              margin-top: 3px;
+            "
+          >
+            Async tasks: close chat rooms, booking reminders, payment webhooks,
+            slot expiry. <span class="badge badge-blue">needed</span>
+          </div>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background: #1a1a2e; color: #a29bfe">
+          ☁
+        </div>
+        <div>
+          <div style="font-size: 13px; font-weight: 500">S3 / Cloudinary</div>
+          <div
+            style="
+              font-size: 11px;
+              color: var(--color-text-secondary);
+              margin-top: 3px;
+            "
+          >
+            Turf image uploads. Cloudinary gives free transforms (resize/crop)
+            for mobile. <span class="badge badge-blue">recommended</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">Frontend</div>
+    <div class="grid2">
+      <div class="stack-item">
+        <div class="stack-icon" style="background: #1a2a3a; color: #61dafb">
+          ⚛
+        </div>
+        <div>
+          <div style="font-size: 13px; font-weight: 500">React (web)</div>
+          <div
+            style="
+              font-size: 11px;
+              color: var(--color-text-secondary);
+              margin-top: 3px;
+            "
+          >
+            Owner dashboard, turf listing, booking flow. Share API logic with
+            mobile.
+          </div>
+        </div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background: #1a2a3a; color: #61dafb">
+          
+        </div>
+        <div>
+          <div style="font-size: 13px; font-weight: 500">
+            React Native (mobile)
+          </div>
+          <div
+            style="
+              font-size: 11px;
+              color: var(--color-text-secondary);
+              margin-top: 3px;
+            "
+          >
+            Client app. Use Expo for faster dev. Share hooks/stores with web via
+            a shared lib.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">Payments</div>
+    <div class="grid2">
+      <div class="stack-item">
+        <div
+          class="stack-icon"
+          style="
+            background: #4a1942;
+            color: #e879f9;
+            font-size: 11px;
+            font-weight: 700;
+          "
+        >
+          Khalti
+        </div>
+        <div>
+          <div style="font-size: 13px; font-weight: 500">Khalti / eSewa</div>
+          <div
+            style="
+              font-size: 11px;
+              color: var(--color-text-secondary);
+              margin-top: 3px;
+            "
+          >
+            Local Nepali gateways. Khalti has cleaner API. Integrate both for
+            wider coverage.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DB MODELS TAB -->
+  <div id="tab-db" class="panel">
+    <div class="tip">
+      Use UUID as primary keys everywhere for security and future microservice
+      migration. Add <code>created_at</code> and <code>updated_at</code> to
+      every model. Store all datetimes in UTC.
+    </div>
+    <div class="warn">
+      All models inherit an abstract <code>BaseModel</code> with
+      <code>created_at</code> (auto) and <code>updated_at</code> (auto_now).
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="model-block">
+          <div class="model-header"><span></span> User (AbstractUser)</div>
+          <div class="model-field">
+            <span class="field-name">id</span
+            ><span class="field-type">UUIDField</span><span class="pk">PK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">email</span
+            ><span class="field-type">EmailField</span
+            ><span class="unique">UNIQUE</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">phone</span
+            ><span class="field-type">CharField</span
+            ><span class="field-note">optional</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">role</span
+            ><span class="field-type">CharField</span
+            ><span class="field-note">client | owner</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">is_verified</span
+            ><span class="field-type">BooleanField</span
+            ><span class="field-note">email verified</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">avatar</span
+            ><span class="field-type">ImageField</span
+            ><span class="field-note">profile photo</span>
+          </div>
+        </div>
+
+        <div class="model-block">
+          <div class="model-header"><span></span> BlacklistedToken</div>
+          <div class="model-field">
+            <span class="field-name">id</span
+            ><span class="field-type">UUIDField</span><span class="pk">PK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">token</span
+            ><span class="field-type">CharField</span
+            ><span class="unique">UNIQUE</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">expires_at</span
+            ><span class="field-type">DateTimeField</span>
+          </div>
+          <div
+            class="model-field"
+            style="background: var(--color-background-info)"
+          >
+            <span class="field-note" style="color: var(--color-text-info)"
+              >Celery task periodically prunes expired tokens</span
+            >
+          </div>
+        </div>
+
+        <div class="model-block">
+          <div class="model-header"><span></span> DeviceToken</div>
+          <div class="model-field">
+            <span class="field-name">user</span
+            ><span class="field-type">FK → User</span><span class="fk">FK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">platform</span
+            ><span class="field-type">CharField</span
+            ><span class="field-note">fcm | apns</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">token</span
+            ><span class="field-type">CharField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">is_active</span
+            ><span class="field-type">BooleanField</span
+            ><span class="field-note">default True</span>
+          </div>
+          <div
+            class="model-field"
+            style="background: var(--color-background-warning)"
+          >
+            <span class="field-note" style="color: var(--color-text-warning)"
+              >UniqueConstraint(user, token) — one device per token</span
+            >
+          </div>
+        </div>
+
+        <div class="model-block">
+          <div class="model-header"><span></span> Turf</div>
+          <div class="model-field">
+            <span class="field-name">id</span
+            ><span class="field-type">UUIDField</span><span class="pk">PK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">owner</span
+            ><span class="field-type">FK → User</span><span class="fk">FK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">name</span
+            ><span class="field-type">CharField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">description</span
+            ><span class="field-type">TextField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">location</span
+            ><span class="field-type">CharField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">latitude, longitude</span
+            ><span class="field-type">DecimalField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">amenities</span
+            ><span class="field-type">JSONField</span
+            ><span class="field-note">lights, parking…</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">opening_time</span
+            ><span class="field-type">TimeField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">closing_time</span
+            ><span class="field-type">TimeField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">is_active</span
+            ><span class="field-type">BooleanField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">avg_rating</span
+            ><span class="field-type">DecimalField</span
+            ><span class="field-note">cached, updated</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">deleted_at</span
+            ><span class="field-type">DateTimeField</span
+            ><span class="field-note">nullable, soft-delete</span>
+          </div>
+        </div>
+
+        <div class="model-block">
+          <div class="model-header"><span></span> TurfSport</div>
+          <div class="model-field">
+            <span class="field-name">id</span
+            ><span class="field-type">UUIDField</span><span class="pk">PK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">turf</span
+            ><span class="field-type">FK → Turf</span><span class="fk">FK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">sport</span
+            ><span class="field-type">CharField</span
+            ><span class="field-note">futsal|basketball…</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">price_per_hour</span
+            ><span class="field-type">DecimalField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">max_players</span
+            ><span class="field-type">IntegerField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">court_count</span
+            ><span class="field-type">IntegerField</span
+            ><span class="field-note">no. of courts</span>
+          </div>
+          <div
+            class="model-field"
+            style="background: var(--color-background-warning)"
+          >
+            <span class="field-note" style="color: var(--color-text-warning)"
+              >UniqueConstraint(turf, sport) — prevent duplicate sport entries</span
+            >
+          </div>
+        </div>
+
+        <div class="model-block">
+          <div class="model-header"><span></span> TurfImage</div>
+          <div class="model-field">
+            <span class="field-name">id</span
+            ><span class="field-type">UUIDField</span><span class="pk">PK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">turf</span
+            ><span class="field-type">FK → Turf</span><span class="fk">FK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">image</span
+            ><span class="field-type">ImageField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">is_cover</span
+            ><span class="field-type">BooleanField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">order</span
+            ><span class="field-type">IntegerField</span>
+          </div>
+        </div>
+
+        <div class="model-block">
+          <div class="model-header"><span></span> Review</div>
+          <div class="model-field">
+            <span class="field-name">id</span
+            ><span class="field-type">UUIDField</span><span class="pk">PK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">booking</span
+            ><span class="field-type">OneToOneField</span
+            ><span class="fk">FK</span><span class="unique">UNIQUE</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">user</span
+            ><span class="field-type">FK → User</span><span class="fk">FK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">turf</span
+            ><span class="field-type">FK → Turf</span><span class="fk">FK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">rating</span
+            ><span class="field-type">IntegerField</span
+            ><span class="field-note">1–5</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">comment</span
+            ><span class="field-type">TextField</span>
+          </div>
+          <div
+            class="model-field"
+            style="background: var(--color-background-success)"
+          >
+            <span class="field-note" style="color: var(--color-text-success)"
+              >user/turf are denormalized for fast queries — derive consistency via booking</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="model-block">
+          <div class="model-header"><span></span> Booking</div>
+          <div class="model-field">
+            <span class="field-name">id</span
+            ><span class="field-type">UUIDField</span><span class="pk">PK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">user</span
+            ><span class="field-type">FK → User</span><span class="fk">FK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">turf_sport</span
+            ><span class="field-type">FK → TurfSport</span
+            ><span class="fk">FK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">date</span
+            ><span class="field-type">DateField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">start_time</span
+            ><span class="field-type">TimeField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">end_time</span
+            ><span class="field-type">TimeField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">duration_hours</span
+            ><span class="field-type">DecimalField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">total_price</span
+            ><span class="field-type">DecimalField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">status</span
+            ><span class="field-type">CharField</span
+            ><span class="field-note"
+              >pending|confirmed|cancelled|completed</span
+            >
+          </div>
+          <div class="model-field">
+            <span class="field-name">match</span
+            ><span class="field-type">FK → Match</span><span class="fk">FK</span
+            ><span class="field-note">nullable</span>
+          </div>
+          <div
+            class="model-field"
+            style="background: var(--color-background-warning)"
+          >
+            <span class="field-note" style="color: var(--color-text-warning)"
+              >DB constraint: UNIQUE(turf_sport, date, start_time). Store times in UTC, document TZ strategy clearly</span
+            >
+          </div>
+        </div>
+
+        <div class="model-block">
+          <div class="model-header"><span></span> Payment</div>
+          <div class="model-field">
+            <span class="field-name">booking</span
+            ><span class="field-type">OneToOneField</span
+            ><span class="fk">FK</span><span class="pk">PK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">gateway</span
+            ><span class="field-type">CharField</span
+            ><span class="field-note">khalti|esewa|stripe</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">transaction_id</span
+            ><span class="field-type">CharField</span
+            ><span class="unique">UNIQUE</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">amount</span
+            ><span class="field-type">DecimalField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">status</span
+            ><span class="field-type">CharField</span
+            ><span class="field-note">pending|success|failed|refunded</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">gateway_response</span
+            ><span class="field-type">JSONField</span
+            ><span class="field-note">raw webhook data</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">paid_at</span
+            ><span class="field-type">DateTimeField</span>
+          </div>
+          <div
+            class="model-field"
+            style="background: var(--color-background-info)"
+          >
+            <span class="field-note" style="color: var(--color-text-info)"
+              >booking is the primary_key — one payment per booking</span
+            >
+          </div>
+        </div>
+
+        <div class="model-block">
+          <div class="model-header"><span></span> ChatRoom</div>
+          <div class="model-field">
+            <span class="field-name">booking</span
+            ><span class="field-type">OneToOneField</span
+            ><span class="fk">FK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">is_active</span
+            ><span class="field-type">BooleanField</span
+            ><span class="field-note">false after event</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">closed_at</span
+            ><span class="field-type">DateTimeField</span
+            ><span class="field-note">nullable</span>
+          </div>
+          <div
+            class="model-field"
+            style="background: var(--color-background-info)"
+          >
+            <span class="field-note" style="color: var(--color-text-info)"
+              >Schedule one-shot Celery task with eta=booking.end_time per booking — not periodic polling</span
+            >
+          </div>
+        </div>
+
+        <div class="model-block">
+          <div class="model-header"><span></span> Message</div>
+          <div class="model-field">
+            <span class="field-name">id</span
+            ><span class="field-type">UUIDField</span><span class="pk">PK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">room</span
+            ><span class="field-type">FK → ChatRoom</span
+            ><span class="fk">FK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">sender</span
+            ><span class="field-type">FK → User</span><span class="fk">FK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">content</span
+            ><span class="field-type">TextField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">msg_type</span
+            ><span class="field-type">CharField</span
+            ><span class="field-note">text|image|system</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">is_read</span
+            ><span class="field-type">BooleanField</span>
+          </div>
+        </div>
+
+        <div class="model-block">
+          <div class="model-header"><span></span> Match</div>
+          <div class="model-field">
+            <span class="field-name">id</span
+            ><span class="field-type">UUIDField</span><span class="pk">PK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">created_by</span
+            ><span class="field-type">FK → User</span><span class="fk">FK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">sport</span
+            ><span class="field-type">CharField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">turf</span
+            ><span class="field-type">FK → Turf</span><span class="fk">FK</span
+            ><span class="field-note">nullable, auto-book</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">match_date</span
+            ><span class="field-type">DateField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">start_time</span
+            ><span class="field-type">TimeField</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">format</span
+            ><span class="field-type">CharField</span
+            ><span class="field-note">5v5, 3v3…</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">slots_needed</span
+            ><span class="field-type">IntegerField</span
+            ><span class="field-note">how many more</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">skill_level</span
+            ><span class="field-type">CharField</span
+            ><span class="field-note">beginner|mid|pro</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">status</span
+            ><span class="field-type">CharField</span
+            ><span class="field-note">open|full|cancelled</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">location_text</span
+            ><span class="field-type">CharField</span
+            ><span class="field-note">area/city</span>
+          </div>
+        </div>
+
+        <div class="model-block">
+          <div class="model-header"><span></span> MatchParticipant</div>
+          <div class="model-field">
+            <span class="field-name">id</span
+            ><span class="field-type">UUIDField</span><span class="pk">PK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">match</span
+            ><span class="field-type">FK → Match</span
+            ><span class="fk">FK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">user</span
+            ><span class="field-type">FK → User</span><span class="fk">FK</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">status</span
+            ><span class="field-type">CharField</span
+            ><span class="field-note">pending|accepted|rejected</span>
+          </div>
+          <div class="model-field">
+            <span class="field-name">team</span
+            ><span class="field-type">CharField</span
+            ><span class="field-note">A | B</span>
+          </div>
+          <div
+            class="model-field"
+            style="background: var(--color-background-warning)"
+          >
+            <span class="field-note" style="color: var(--color-text-warning)"
+              >UniqueConstraint(match, user) — one participation per user</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API ENDPOINTS TAB -->
+  <div id="tab-api" class="panel">
+    <div class="section-title">Authentication — /api/auth/</div>
+    <div class="model-block">
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/auth/register/</span
+        ><span class="api-desc">Register client or owner</span>
+      </div>
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/auth/login/</span
+        ><span class="api-desc">JWT login (access + refresh tokens)</span>
+      </div>
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/auth/refresh/</span
+        ><span class="api-desc">Refresh access token</span>
+      </div>
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/auth/logout/</span
+        ><span class="api-desc">Blacklist refresh token</span>
+      </div>
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/auth/me/</span
+        ><span class="api-desc">Get current user profile</span>
+      </div>
+      <div class="api-row">
+        <span class="method PATCH">PATCH</span
+        ><span class="api-path">/api/auth/me/</span
+        ><span class="api-desc">Update profile / avatar</span>
+      </div>
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/auth/verify-email/</span
+        ><span class="api-desc">Email OTP verification</span>
+      </div>
+    </div>
+
+    <div class="section-title">Turfs — /api/turfs/ (public + owner)</div>
+    <div class="model-block">
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/turfs/</span
+        ><span class="api-desc"
+          >List turfs (filter by sport, location, date, rating). Excludes soft-deleted</span
+        >
+      </div>
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/turfs/</span
+        ><span class="api-desc">Create turf (owner only)</span>
+      </div>
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/turfs/{id}/</span
+        ><span class="api-desc"
+          >Turf detail with sports, images, avg rating</span
+        >
+      </div>
+      <div class="api-row">
+        <span class="method PATCH">PATCH</span
+        ><span class="api-path">/api/turfs/{id}/</span
+        ><span class="api-desc">Update turf (owner only)</span>
+      </div>
+      <div class="api-row">
+        <span class="method DELETE">DEL</span
+        ><span class="api-path">/api/turfs/{id}/</span
+        ><span class="api-desc">Soft-delete: set deleted_at (owner only)</span>
+      </div>
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/turfs/{id}/availability/</span
+        ><span class="api-desc">Available slots for a given date + sport</span>
+      </div>
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/turfs/{id}/images/</span
+        ><span class="api-desc">Upload turf images (multipart, max 10)</span>
+      </div>
+      <div class="api-row">
+        <span class="method DELETE">DEL</span
+        ><span class="api-path">/api/turfs/{id}/images/{img_id}/</span
+        ><span class="api-desc">Delete image</span>
+      </div>
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/turfs/{id}/reviews/</span
+        ><span class="api-desc">Reviews for turf</span>
+      </div>
+    </div>
+
+    <div class="section-title">Bookings — /api/bookings/</div>
+    <div class="model-block">
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/bookings/</span
+        ><span class="api-desc">Create booking (returns payment intent). Requires idempotency key header</span>
+      </div>
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/bookings/</span
+        ><span class="api-desc">User's booking history (cursor paginated)</span>
+      </div>
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/bookings/{id}/</span
+        ><span class="api-desc">Booking detail</span>
+      </div>
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/bookings/{id}/cancel/</span
+        ><span class="api-desc">Cancel booking (refund logic)</span>
+      </div>
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/bookings/{id}/review/</span
+        ><span class="api-desc">Submit review (only after completed)</span>
+      </div>
+    </div>
+
+    <div class="section-title">Payments — /api/payments/</div>
+    <div class="model-block">
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/payments/initiate/</span
+        ><span class="api-desc">Initiate payment via Khalti/eSewa</span>
+      </div>
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/payments/verify/</span
+        ><span class="api-desc">Verify payment after redirect</span>
+      </div>
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/payments/webhook/</span
+        ><span class="api-desc">Gateway webhook (verify signature, auto-confirm booking)</span>
+      </div>
+    </div>
+
+    <div class="section-title">Matches — /api/matches/</div>
+    <div class="model-block">
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/matches/</span
+        ><span class="api-desc">Post a match (5v5 futsal etc)</span>
+      </div>
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/matches/</span
+        ><span class="api-desc"
+          >Browse open matches (filter by sport, location, date)</span
+        >
+      </div>
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/matches/{id}/</span
+        ><span class="api-desc">Match detail + participants</span>
+      </div>
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/matches/{id}/join/</span
+        ><span class="api-desc">Request to join a match</span>
+      </div>
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/matches/{id}/accept/{user_id}/</span
+        ><span class="api-desc">Accept participant (match creator only)</span>
+      </div>
+      <div class="api-row">
+        <span class="method DELETE">DEL</span
+        ><span class="api-path">/api/matches/{id}/</span
+        ><span class="api-desc">Cancel match (creator only)</span>
+      </div>
+    </div>
+
+    <div class="section-title">Chat — /api/chat/</div>
+    <div class="model-block">
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/chat/rooms/</span
+        ><span class="api-desc">User's active chat rooms</span>
+      </div>
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/chat/rooms/{id}/messages/</span
+        ><span class="api-desc">Message history (cursor paginated)</span>
+      </div>
+      <div class="api-row">
+        <span class="method WS">WS</span
+        ><span class="api-path">ws://domain/ws/chat/{room_id}/?token=…</span
+        ><span class="api-desc">Live bidirectional chat</span>
+      </div>
+    </div>
+
+    <div class="section-title">Notifications — /api/notifications/</div>
+    <div class="model-block">
+      <div class="api-row">
+        <span class="method POST">POST</span
+        ><span class="api-path">/api/notifications/device-token/</span
+        ><span class="api-desc">Register FCM/APNs device token</span>
+      </div>
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/notifications/</span
+        ><span class="api-desc">User's notification history</span>
+      </div>
+      <div class="api-row">
+        <span class="method DELETE">DEL</span
+        ><span class="api-path">/api/notifications/device-token/</span
+        ><span class="api-desc">Remove device token (logout)</span>
+      </div>
+    </div>
+
+    <div class="section-title">Owner Dashboard — /api/owner/</div>
+    <div class="model-block">
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/owner/dashboard/</span
+        ><span class="api-desc">Summary: revenue, bookings, ratings</span>
+      </div>
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/owner/bookings/</span
+        ><span class="api-desc">All bookings for owner's turfs</span>
+      </div>
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/owner/analytics/</span
+        ><span class="api-desc">Hourly/daily/monthly revenue, peak slots</span>
+      </div>
+      <div class="api-row">
+        <span class="method GET">GET</span
+        ><span class="api-path">/api/owner/turfs/{id}/schedule/</span
+        ><span class="api-desc">Week view of bookings for a turf</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- REALTIME TAB -->
+  <div id="tab-realtime" class="panel">
+    <div class="tip">
+      Django Channels + Redis is the right choice. SSE is only needed for
+      one-way pushes (like slot updates on the booking page). WebSocket handles
+      chat fully.
+    </div>
+
+    <div class="section-title">Chat room lifecycle</div>
+    <div class="card">
+      <div class="flow-row">
+        <span class="badge badge-blue">1</span
+        ><span style="font-size: 12px; margin-left: 4px"
+          >Payment confirmed → Booking status = confirmed</span
+        >
+      </div>
+      <div class="flow-row">
+        <span class="badge badge-blue">2</span
+        ><span style="font-size: 12px; margin-left: 4px"
+          >Signal auto-creates ChatRoom linked to Booking (is_active=True)</span
+        >
+      </div>
+      <div class="flow-row">
+        <span class="badge badge-blue">3</span
+        ><span style="font-size: 12px; margin-left: 4px"
+          >Both user and owner can connect via WS using their JWT token</span
+        >
+      </div>
+      <div class="flow-row">
+        <span class="badge badge-blue">4</span
+        ><span style="font-size: 12px; margin-left: 4px"
+          >One-shot Celery task scheduled at booking creation with eta=booking.end_time → sets is_active=False</span
+        >
+      </div>
+      <div class="flow-row">
+        <span class="badge badge-blue">5</span
+        ><span style="font-size: 12px; margin-left: 4px"
+          >Consumer sends system message "Room closed" then closes WS connection</span
+        >
+      </div>
+      <div class="flow-row">
+        <span class="badge badge-blue">6</span
+        ><span style="font-size: 12px; margin-left: 4px"
+          >Messages retained in DB for dispute resolution, not shown in UI</span
+        >
+      </div>
+    </div>
+
+    <div class="warn">
+      Avoid Celery beat periodic polling. Schedule one-shot tasks with exact
+      <code>eta=booking.end_time</code> per booking. If worker restarts, tasks
+      are persisted in Redis and will execute at the correct time.
+    </div>
+
+    <div class="section-title">
+      WebSocket consumer structure (Django Channels)
+    </div>
+    <div
+      class="card"
+      style="
+        font-family: var(--font-mono);
+        font-size: 11px;
+        line-height: 1.7;
+        color: var(--color-text-secondary);
+      "
+    >
+      <div>
+        <span style="color: var(--color-text-info)">class</span>
+        <span style="color: var(--color-text-primary)">ChatConsumer</span
+        >(AsyncWebsocketConsumer):
+      </div>
+      <div style="padding-left: 16px">
+        <span style="color: var(--color-text-tertiary)"
+          ># connect: auth JWT → check room access → join group</span
+        >
+      </div>
+      <div style="padding-left: 16px">
+        <span style="color: var(--color-text-tertiary)"
+          ># receive: save Message to DB → broadcast to group</span
+        >
+      </div>
+      <div style="padding-left: 16px">
+        <span style="color: var(--color-text-tertiary)"
+          ># disconnect: leave group</span
+        >
+      </div>
+      <div style="padding-left: 16px">
+        <span style="color: var(--color-text-tertiary)"
+          ># room_name = f"chat_{room_id}"</span
+        >
+      </div>
+      <br />
+      <div>
+        <span style="color: var(--color-text-tertiary)"># routing.py</span>
+      </div>
+      <div>websocket_urlpatterns = [</div>
+      <div style="padding-left: 16px">
+        path(<span style="color: #5dcaa5">"ws/chat/&lt;uuid:room_id&gt;/"</span
+        >, ChatConsumer.as_asgi())
+      </div>
+      <div>]</div>
+    </div>
+
+    <div class="section-title">SSE — when to use it</div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title" style="font-size: 13px">  Use SSE for</div>
+        <div class="card-sub">
+          Real-time slot availability updates on the booking page — push slot
+          status changes to all viewers without them opening a WebSocket. Also
+          useful for owner dashboard live stats.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="font-size: 13px">
+            Use WebSocket for
+        </div>
+        <div class="card-sub">
+          Chat rooms (bidirectional). Both owner and client send messages. WS is
+          mandatory here. Also consider for match join notifications.
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Slot blocking strategy</div>
+    <div class="card">
+      <div class="card-sub">
+        When a user starts booking, create a
+        <strong>pending Booking</strong> with a 10-minute expiry (use Celery).
+        Lock the slot via DB constraint. If payment isn't completed in 10 min,
+        Celery cancels the booking and releases the slot. This prevents
+        double-booking during checkout.
+      </div>
+      <div
+        style="
+          margin-top: 10px;
+          font-family: var(--font-mono);
+          font-size: 11px;
+          color: var(--color-text-secondary);
+        "
+      >
+        Booking.objects.create(status=<span style="color: #5dcaa5"
+          >"pending"</span
+        >, ...)<br />
+        release_pending_booking.apply_async(args=[booking.id], countdown=600)
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE TAB -->
+  <div id="tab-arch" class="panel">
+    <div class="section-title">Request flow</div>
+    <div class="card">
+      <div class="flow-row">
+        <span
+          style="
+            font-size: 12px;
+            font-weight: 500;
+            min-width: 120px;
+            color: var(--color-text-secondary);
+          "
+          >HTTP requests</span
+        ><span class="flow-arrow">→</span
+        ><span style="font-size: 12px">Nginx (reverse proxy)</span
+        ><span class="flow-arrow">→</span
+        ><span style="font-size: 12px">Gunicorn + Django</span
+        ><span class="flow-arrow">→</span
+        ><span style="font-size: 12px">DRF Views → PostgreSQL</span>
+      </div>
+      <div class="flow-row">
+        <span
+          style="
+            font-size: 12px;
+            font-weight: 500;
+            min-width: 120px;
+            color: var(--color-text-secondary);
+          "
+          >WebSocket</span
+        ><span class="flow-arrow">→</span
+        ><span style="font-size: 12px">Nginx (ws:// upgrade)</span
+        ><span class="flow-arrow">→</span
+        ><span style="font-size: 12px">Daphne (ASGI)</span
+        ><span class="flow-arrow">→</span
+        ><span style="font-size: 12px">Channels Consumer → Redis</span>
+      </div>
+      <div class="flow-row">
+        <span
+          style="
+            font-size: 12px;
+            font-weight: 500;
+            min-width: 120px;
+            color: var(--color-text-secondary);
+          "
+          >Background jobs</span
+        ><span class="flow-arrow">→</span
+        ><span style="font-size: 12px">Celery Workers</span
+        ><span class="flow-arrow">→</span
+        ><span style="font-size: 12px">Redis (broker)</span
+        ><span class="flow-arrow">→</span
+        ><span style="font-size: 12px">DB / Email / Push</span>
+      </div>
+      <div class="flow-row">
+        <span
+          style="
+            font-size: 12px;
+            font-weight: 500;
+            min-width: 120px;
+            color: var(--color-text-secondary);
+          "
+          >Scheduled tasks</span
+        ><span class="flow-arrow">→</span
+        ><span style="font-size: 12px">Celery Beat (prune expired tokens)</span
+        ><span class="flow-arrow">+</span
+        ><span style="font-size: 12px"
+          >One-shot tasks (eta) per booking for room closure, slot release, reminders</span
+        >
+      </div>
+    </div>
+
+    <div class="section-title">Service layers</div>
+    <div class="grid2">
+      <div class="arch-box">
+        <div class="arch-label">Django apps (modules)</div>
+        <div class="arch-detail">
+          users · turfs · bookings · payments · chat · matches · reviews ·
+          notifications · dashboard — each as a separate Django app. Keeps code
+          isolated and testable.
+        </div>
+      </div>
+      <div class="arch-box">
+        <div class="arch-label">Authentication</div>
+        <div class="arch-detail">
+          djangorestframework-simplejwt for JWT. Short-lived access tokens (15
+          min), long-lived refresh (7 days). Blacklist refresh token in
+          BlacklistedToken model on logout.
+        </div>
+      </div>
+      <div class="arch-box">
+        <div class="arch-label">Image storage</div>
+        <div class="arch-detail">
+          django-storages + Cloudinary or S3. Never store images on server disk.
+          Generate thumbnails on upload. Serve via CDN URL.
+        </div>
+      </div>
+      <div class="arch-box">
+        <div class="arch-label">Permission classes</div>
+        <div class="arch-detail">
+          IsOwner, IsClient, IsBookingParticipant (for chat), IsBookingOwner
+          (for review). Role-based from User.role field.
+        </div>
+      </div>
+      <div class="arch-box">
+        <div class="arch-label">Celery tasks</div>
+        <div class="arch-detail">
+          release_pending_booking · close_expired_rooms (one-shot per booking)
+          · send_booking_reminder · update_avg_rating ·
+          send_push_notification · prune_blacklisted_tokens
+        </div>
+      </div>
+      <div class="arch-box">
+        <div class="arch-label">Caching strategy</div>
+        <div class="arch-detail">
+          Cache turf listings (short TTL ~2 min). Cache slot availability per
+          turf per date. Invalidate cache immediately on booking creation + cancellation. Use Redis.
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Django project structure</div>
+    <div
+      class="card"
+      style="
+        font-family: var(--font-mono);
+        font-size: 11px;
+        line-height: 1.8;
+        color: var(--color-text-secondary);
+      "
+    >
+      <div>turf_backend/</div>
+      <div style="padding-left: 16px">
+        config/ &nbsp;&nbsp;&nbsp;<span
+          style="color: var(--color-text-tertiary)"
+          ># settings, urls, asgi, wsgi</span
+        >
+      </div>
+      <div style="padding-left: 16px">apps/</div>
+      <div style="padding-left: 32px">
+        users/ &nbsp;&nbsp;<span style="color: var(--color-text-tertiary)"
+          ># models (User, BlacklistedToken, DeviceToken), serializers, views, permissions</span
+        >
+      </div>
+      <div style="padding-left: 32px">
+        turfs/ &nbsp;&nbsp;<span style="color: var(--color-text-tertiary)"
+          ># turf + sport + images + availability</span
+        >
+      </div>
+      <div style="padding-left: 32px">
+        bookings/ &nbsp;<span style="color: var(--color-text-tertiary)"
+          ># booking + slot locking logic</span
+        >
+      </div>
+      <div style="padding-left: 32px">
+        payments/ &nbsp;<span style="color: var(--color-text-tertiary)"
+          ># gateway integrations</span
+        >
+      </div>
+      <div style="padding-left: 32px">
+        chat/ &nbsp;&nbsp;&nbsp;<span style="color: var(--color-text-tertiary)"
+          ># consumers, routing, models</span
+        >
+      </div>
+      <div style="padding-left: 32px">
+        matches/ &nbsp;<span style="color: var(--color-text-tertiary)"
+          ># match posting and joining</span
+        >
+      </div>
+      <div style="padding-left: 32px">
+        reviews/ &nbsp;<span style="color: var(--color-text-tertiary)"
+          ># rating + avg update signal</span
+        >
+      </div>
+      <div style="padding-left: 32px">
+        notifications/ <span style="color: var(--color-text-tertiary)"
+          ># push notifications, FCM/APNs</span
+        >
+      </div>
+      <div style="padding-left: 16px">
+        tasks.py &nbsp;&nbsp;<span style="color: var(--color-text-tertiary)"
+          ># all Celery tasks</span
+        >
+      </div>
+      <div style="padding-left: 16px">
+        tests/ &nbsp;&nbsp;&nbsp;<span style="color: var(--color-text-tertiary)"
+          ># pytest-django</span
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- SCALABILITY TAB -->
+  <div id="tab-scale" class="panel">
+    <div class="tip">
+      This architecture scales to thousands of concurrent users without major
+      changes. The key is keeping Django stateless so you can run multiple
+      instances.
+    </div>
+    <div class="section-title">Database</div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title" style="font-size: 13px">Critical indexes</div>
+        <div
+          class="card-sub"
+          style="
+            font-family: var(--font-mono);
+            font-size: 11px;
+            line-height: 1.8;
+          "
+        >
+          Booking(turf_sport, date, status)<br />Booking(user, status)<br />Message(room,
+          created_at)<br />Match(sport, status, match_date)<br />Turf(is_active,
+          avg_rating, deleted_at)
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="font-size: 13px">
+          Read replicas (later)
+        </div>
+        <div class="card-sub">
+          Route analytics, dashboard, and listing queries to a read replica.
+          Writes (booking, payment) go to primary only. Django supports this via
+          DATABASE_ROUTERS.
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">API design for scale</div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title" style="font-size: 13px">Pagination</div>
+        <div class="card-sub">
+          Use cursor-based pagination (not offset) for messages and bookings.
+          Offset pagination breaks under concurrent inserts.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="font-size: 13px">
+          select_related / prefetch
+        </div>
+        <div class="card-sub">
+          Always use select_related and prefetch_related in viewsets to avoid
+          N+1 queries. Use django-debug-toolbar in dev to catch them.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="font-size: 13px">Rate limiting</div>
+        <div class="card-sub">
+          DRF throttling on auth endpoints. Use django-ratelimit or nginx rate
+          limiting for booking and payment endpoints.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="font-size: 13px">Idempotency</div>
+        <div class="card-sub">
+          Payment endpoints must be idempotent. Use idempotency keys (UUID from
+          client via X-Idempotency-Key header) to prevent double charges on retry.
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Future scaling path</div>
+    <div class="model-block">
+      <div class="model-field">
+        <span class="field-name" style="min-width: 160px">Phase 1 (MVP)</span
+        ><span style="font-size: 11px; color: var(--color-text-secondary)"
+          >Single server, all services co-located. Docker Compose.</span
+        >
+      </div>
+      <div class="model-field">
+        <span class="field-name" style="min-width: 160px">Phase 2 (growth)</span
+        ><span style="font-size: 11px; color: var(--color-text-secondary)"
+          >Separate Daphne (WS) from Gunicorn (HTTP). Add Redis cluster. RDS for
+          PostgreSQL. S3 for media.</span
+        >
+      </div>
+      <div class="model-field">
+        <span class="field-name" style="min-width: 160px">Phase 3 (scale)</span
+        ><span style="font-size: 11px; color: var(--color-text-secondary)"
+          >Multiple Gunicorn instances behind load balancer. Celery worker pool.
+          CDN for assets. Read replicas.</span
+        >
+      </div>
+      <div class="model-field">
+        <span class="field-name" style="min-width: 160px"
+          >Phase 4 (enterprise)</span
+        ><span style="font-size: 11px; color: var(--color-text-secondary)"
+          >Extract chat and notifications as separate services. Kubernetes.
+          Elasticsearch for match/turf search.</span
+        >
+      </div>
+    </div>
+
+    <div class="section-title">Security checklist</div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-sub">
+            JWT with short expiry + refresh blacklisting<br />  Row-level
+          permission checks (not just role)<br />  Signed URLs for image
+          uploads (no public S3)<br />  Input validation on all serializers<br /> 
+          CORS whitelist (no *)<br />  Soft-delete queries must filter
+          WHERE deleted_at IS NULL
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-sub">
+            Verify payment webhook signatures (Khalti/eSewa)<br />  Rate limit
+          auth endpoints (prevent brute force)<br />  Booking: check user owns
+          slot before chat access<br />  django-axes for login attempt
+          tracking<br />  django-environ for secrets (never in code)<br />
+          Idempotency keys on booking/payment endpoints
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showTab(name) {
+    document
+      .querySelectorAll(".tab")
+      .forEach((t) => t.classList.remove("active"));
+    document
+      .querySelectorAll(".panel")
+      .forEach((p) => p.classList.remove("active"));
+    document.getElementById("tab-" + name).classList.add("active");
+    event.target.classList.add("active");
+  }
+</script>

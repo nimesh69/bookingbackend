@@ -28,7 +28,7 @@ SECRET_KEY = "django-insecure-=!(u6_fv4r2$q49pq^)g&zg-)k2^n)mjo1b239n#aa15gl-3$2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 SITE_ID = 1
 # Application definition
@@ -54,13 +54,16 @@ INSTALLED_APPS = [
     # rest auth
     "dj_rest_auth",
     "dj_rest_auth.registration",
-    "users",
-    "venues",
-    "bookings",
-    "payments",
-    "reviews",
-    "chat",
-    "notifications",
+
+
+    "apps.users",
+    "apps.turfs",
+    "apps.bookings",
+    "apps.payments",
+    "apps.reviews",
+    "apps.chat",
+    "apps.notifications",
+    "apps.matches",
 ]
 
 MIDDLEWARE = [
@@ -69,7 +72,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    'allauth.account.middleware.AccountMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -136,6 +139,8 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+
 
 
 # Internationalization
