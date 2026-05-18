@@ -24,7 +24,8 @@ class User(AbstractUser):
     phone = models.CharField(max_length=15, blank=True, null=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='client')
     is_verified = models.BooleanField(default=False, help_text="Email verified status")
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, help_text="Profile photo")
+    avatar = models.ImageField(upload_to='avatar/',  default = 'avatar/default.jpg', blank=True, null=True, help_text="Profile photo")
+    device = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
