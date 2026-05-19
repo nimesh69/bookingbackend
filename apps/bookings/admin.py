@@ -5,10 +5,10 @@ from .models import Booking
 
 @admin.register(Booking)
 class BookingAdmin(UnfoldModelAdmin):
-    list_display = ('id', 'user', 'turf_sport', 'date', 'status', 'total_price', 'created_at')
-    list_filter = ('status', 'date', 'created_at', 'turf_sport__turf__owner')
+    list_display = ('id', 'user', 'turf', 'date', 'status', 'total_price', 'created_at')
+    list_filter = ('status', 'date', 'created_at', 'turf__venue__owner')
     list_per_page = 25
-    search_fields = ('user__email', 'turf_sport__turf__name', 'id')
+    search_fields = ('user__email', 'turf__name', 'id')
     readonly_fields = ('id', 'created_at', 'updated_at')
     
     fieldsets = (

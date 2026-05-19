@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
 from django.contrib.auth import get_user_model
-from apps.turfs.models import TurfSport
+from apps.turfs.models import Turf
 
 User = get_user_model()
 
@@ -26,7 +26,7 @@ class Booking(BaseModel):
     )
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
-    turf_sport = models.ForeignKey(TurfSport, on_delete=models.CASCADE, related_name='bookings')
+    turf = models.ForeignKey(Turf, on_delete=models.CASCADE, related_name='bookings')
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -38,14 +38,14 @@ class Booking(BaseModel):
                              help_text="Associated match if this booking is linked to a match")
     
     class Meta:
-        unique_together = ('turf_sport', 'date', 'start_time')
+        unique_together = ('turf', 'date', 'start_time')
         ordering = ['-created_at']
         verbose_name = "Booking"
         verbose_name_plural = "Bookings"
         indexes = [
             models.Index(fields=['user', '-created_at']),
-            models.Index(fields=['turf_sport', 'date']),
+            models.Index(fields=['turf', 'date']),
         ]
     
     def __str__(self):
-        return f"Booking {self.id} - {self.turf_sport.turf.name} on {self.date}"
+        return f"Booking {self.id} - {self.turf.turf.name} on {self.date}"
