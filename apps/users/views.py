@@ -97,7 +97,8 @@ class LoginView(APIView):
 
 @extend_schema(operation_id='logout', tags=['Auth'])
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = []  #
+    authentication_classes = [] 
 
     def post(self, request):
         is_mobile = request.headers.get('X-Client-Type') == 'mobile'
