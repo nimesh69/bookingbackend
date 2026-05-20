@@ -16,7 +16,7 @@ class BaseModel(models.Model):
 class User(AbstractUser):
     ROLE_CHOICES = (
         ('owner', 'Owner'),
-        ('client', 'Client'),
+        ('player', 'Player'),
     )
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
