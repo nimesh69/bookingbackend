@@ -70,3 +70,5 @@ django-allauth
 dj-rest-auth
 django-appointment
 django_q2
+channels_redis
+uvicorn

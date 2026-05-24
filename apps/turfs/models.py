@@ -25,6 +25,12 @@ class Venue(BaseModel):
     A physical location owned by one owner.
     Address and amenities are shared across all turfs inside.
     """
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+        ('suspended', 'Suspended'),
+    ]
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='venues')
     name = models.CharField(max_length=200, help_text="e.g. KTM Sports Hub")
     location = models.CharField(max_length=255, help_text="Physical address")
@@ -32,9 +38,13 @@ class Venue(BaseModel):
         default=dict,
         help_text="Shared facilities e.g. {'parking': true, 'lights': true, 'washroom': true}"
     )
-    is_active = models.BooleanField(default=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     deleted_at = models.DateTimeField(null=True, blank=True, help_text="Soft delete timestamp")
-
+    cover_image = models.ImageField(
+    upload_to='venues/covers/',
+    null=True,
+    blank=True
+    )
     class Meta:
         ordering = ['-created_at']
         verbose_name = "Venue"
@@ -44,6 +54,39 @@ class Venue(BaseModel):
         return f"{self.name} — {self.location}"
 
 
+# ──────────────────────────────────────────────
+# Venue owner verification
+# ──────────────────────────────────────────────
+
+
+class VenueVerification(BaseModel):
+    venue = models.OneToOneField(
+        Venue,
+        on_delete=models.CASCADE,
+        related_name='verification'
+    )
+
+    citizenship_front = models.ImageField(
+        upload_to='venue_verification/citizenship/'
+    )
+
+    citizenship_back = models.ImageField(
+        upload_to='venue_verification/citizenship/'
+    )
+
+    pan_card = models.ImageField(
+        upload_to='venue_verification/pan/'
+    )
+
+    business_registration = models.ImageField(
+        upload_to='venue_verification/business/'
+    )
+
+    verified = models.BooleanField(default=False)
+
+    verified_at = models.DateTimeField(null=True, blank=True)
+
+    rejection_reason = models.TextField(blank=True)
 # ──────────────────────────────────────────────
 # TURF — individual court/field inside a Venue
 # ──────────────────────────────────────────────
@@ -63,7 +106,12 @@ class Turf(BaseModel):
         ('pickleball', 'Pickleball'),
         ('table_tennis', 'Table Tennis'),
     )
-
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+        ('suspended', 'Suspended'),
+    ]
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name='turfs')
     sport = models.CharField(max_length=20, choices=SPORT_CHOICES)
     name = models.CharField(max_length=200, help_text="e.g. Court A - Futsal")
@@ -82,7 +130,7 @@ class Turf(BaseModel):
         validators=[MinValueValidator(0), MaxValueValidator(5)],
         help_text="Cached average rating — update via signal or periodic task"
     )
-    is_active = models.BooleanField(default=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     deleted_at = models.DateTimeField(null=True, blank=True, help_text="Soft delete timestamp")
 
     class Meta:
@@ -100,10 +148,10 @@ class Turf(BaseModel):
 
 class TurfImage(BaseModel):
     """Images for an individual turf/court"""
+    id  = models.AutoField(primary_key=True)
     turf = models.ForeignKey(Turf, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='turf_images/')
-    is_cover = models.BooleanField(default=False, help_text="Mark as the cover/thumbnail image")
-    order = models.IntegerField(default=0, help_text="Display order, lower = first")
+    order = models.PositiveIntegerField(default=0, help_text="Display order, lower = first")
 
     class Meta:
         ordering = ['order', '-created_at']
@@ -120,6 +168,7 @@ class TurfImage(BaseModel):
 
 class TurfReview(BaseModel):
     """Client reviews on a turf. avg_rating on Turf is cached from these."""
+    id = models.AutoField(primary_key=True)
     turf = models.ForeignKey(Turf, on_delete=models.CASCADE, related_name='reviews')
     client = models.ForeignKey(User, on_delete=models.CASCADE, related_name='turf_reviews')
     rating = models.IntegerField(

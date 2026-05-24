@@ -1,8 +1,9 @@
 venv/
 .env
 makefile
-.md*
+*.md
 *__pycache__/
 *.pyc
 *.sql
 *.json
+staticfiles

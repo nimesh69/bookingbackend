@@ -11,8 +11,21 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiTypes, inline_serializer
+from rest_framework import serializers as drf_serializers
 from .utils import set_auth_cookies, clear_auth_cookies
+from .serializer import (
+    LoginRequestSerializer, LoginResponseSerializer,
+    SignupRequestSerializer, SignupResponseSerializer,
+    PasswordResetRequestSerializer, PasswordResetResponseSerializer,
+    PasswordResetConfirmRequestSerializer, PasswordResetConfirmResponseSerializer,
+    DeactivateAccountRequestSerializer, SuccessResponseSerializer,
+    DeleteAccountRequestSerializer,
+    LogoutRequestSerializer, TokenRefreshResponseSerializer,
+    MeResponseSerializer, WsTicketResponseSerializer,
+    ReactivateResponseSerializer, UserDetailSerializer,
+    InactiveAccountResponseSerializer, ErrorResponseSerializer
+)
 import json
 import secrets
 from django.core.cache import cache
@@ -20,7 +33,6 @@ from .forms import SignUpForm, CustomPasswordResetForm
 from .tokens import reactivation_token
 from .emails import send_reactivation_email, send_password_reset_email
 from .backends import AllowInactiveBackend
-# from Profile.models import Profile
 
 User = get_user_model()
 
@@ -36,24 +48,38 @@ def get_tokens_for_user(user):
 class WsTicketView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        operation_id='ws_ticket',
+        tags=['Auth'],
+        responses=WsTicketResponseSerializer
+    )
     def get(self, request):
         # Generate a short-lived single-use ticket
         ticket = secrets.token_urlsafe(32)
         # Store in cache: ticket → user_id, expires in 30 seconds
         cache.set(f'ws_ticket:{ticket}', request.user.id, timeout=30)
         return Response({'ticket': ticket})
-@extend_schema(operation_id='login', tags=['Auth'])
+
+
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        operation_id='login',
+        tags=['Auth'],
+        request=LoginRequestSerializer,
+        responses={
+            200: LoginResponseSerializer,
+            401: ErrorResponseSerializer,
+            403: InactiveAccountResponseSerializer,
+        }
+    )
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        if not username or not password:
-            return Response(
-                {'error': 'Username and password required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        serializer = LoginRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        username = serializer.validated_data.get('username')
+        password = serializer.validated_data.get('password')
 
         user = User.objects.filter(username=username).first()
         if user is None or not user.check_password(password):
@@ -95,11 +121,16 @@ class LoginView(APIView):
             return response
 
 
-@extend_schema(operation_id='logout', tags=['Auth'])
 class LogoutView(APIView):
-    permission_classes = []  #
-    authentication_classes = [] 
+    permission_classes = []
+    authentication_classes = []
 
+    @extend_schema(
+        operation_id='logout',
+        tags=['Auth'],
+        request=LogoutRequestSerializer,
+        responses=SuccessResponseSerializer
+    )
     def post(self, request):
         is_mobile = request.headers.get('X-Client-Type') == 'mobile'
 
@@ -150,14 +181,20 @@ class LogoutView(APIView):
         return response
 
 
-@extend_schema(operation_id='signup', tags=['Auth'])
 class SignupView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        operation_id='signup',
+        tags=['Auth'],
+        request=SignupRequestSerializer,
+        responses={
+            201: SignupResponseSerializer,
+            400: ErrorResponseSerializer,
+        }
+    )
     def post(self, request):
         form = SignUpForm(request.data)
-        print(form)
-        print(request.data)
         if form.is_valid():
             user = form.save()
 
@@ -185,10 +222,24 @@ class SignupView(APIView):
         )
 
 
+# Minimal serializer for TokenRefreshCookieView request body documentation.
+# The actual refresh token is read from the HttpOnly cookie, so the request
+# body is intentionally empty — this just satisfies drf-spectacular.
+class _EmptyRequestSerializer(drf_serializers.Serializer):
+    """No request body — refresh token is read from cookie."""
+    pass
+
+
 class TokenRefreshCookieView(APIView):
     """Replaces SimpleJWT's TokenRefreshView — reads from cookie."""
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        operation_id='token_refresh',
+        tags=['Auth'],
+        request=_EmptyRequestSerializer,
+        responses=TokenRefreshResponseSerializer
+    )
     def post(self, request):
         refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
@@ -212,14 +263,21 @@ class TokenRefreshCookieView(APIView):
         set_auth_cookies(response, tokens)
         return response
 
-@extend_schema(operation_id='password_reset', tags=['Auth'])
+
 class PasswordResetView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        operation_id='password_reset',
+        tags=['Auth'],
+        request=PasswordResetRequestSerializer,
+        responses=PasswordResetResponseSerializer
+    )
     def post(self, request):
-        email = request.data.get('email')
-        if not email:
-            return Response({'error': 'Email required'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        email = serializer.validated_data.get('email')
         try:
             user = User.objects.get(email=email)
             send_password_reset_email(request, user)
@@ -230,6 +288,11 @@ class PasswordResetView(APIView):
 class MeView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        operation_id='get_user_profile',
+        tags=['User'],
+        responses=MeResponseSerializer
+    )
     def get(self, request):
         user = request.user
         return Response({
@@ -240,26 +303,20 @@ class MeView(APIView):
         
         
         
-@extend_schema(operation_id='password_reset_confirm', tags=['Auth'])
 class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        operation_id='password_reset_confirm',
+        tags=['Auth'],
+        request=PasswordResetConfirmRequestSerializer,
+        responses={
+            200: PasswordResetConfirmResponseSerializer,
+            400: ErrorResponseSerializer,
+            404: ErrorResponseSerializer,
+        }
+    )
     def post(self, request, uidb64, token):
-        """
-        Reset user password with one-time token validation.
-        
-        Token is validated and becomes invalid after first use due to password hash change.
-        Link expires after PASSWORD_RESET_TIMEOUT (default 1 hour).
-        
-        Args:
-            uidb64: Base64 encoded user ID
-            token: Password reset token
-            
-        Returns:
-            - 200: Password reset successful with new tokens
-            - 400: Invalid/expired token or validation error
-            - 404: User not found
-        """
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
@@ -269,18 +326,12 @@ class PasswordResetConfirmView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Validate token before attempting password reset
-        # Token is invalid if:
-        # 1. Token has expired (1 hour timeout)
-        # 2. Token signature is invalid
-        # 3. Password has already been reset (token includes password hash)
         if not default_token_generator.check_token(user, token):
             return Response(
                 {'error': 'Link is invalid or expired. Please request a new password reset link.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Validate the new password form
         form = SetPasswordForm(user, request.data)
         if not form.is_valid():
             return Response(
@@ -288,28 +339,34 @@ class PasswordResetConfirmView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Save new password
         user = form.save()
 
-        # Give them fresh tokens after reset
         tokens = get_tokens_for_user(user)
         return Response({
             'message': 'Password reset successful.',
             'tokens': tokens
         }, status=status.HTTP_200_OK)
 
-@extend_schema(operation_id='deactivate_account', tags=['Account'])
 class DeactivateAccountView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        operation_id='deactivate_account',
+        tags=['Account'],
+        request=DeactivateAccountRequestSerializer,
+        responses={
+            200: SuccessResponseSerializer,
+            400: ErrorResponseSerializer,
+        }
+    )
     def post(self, request):
-        password = request.data.get('password')
-        if not password:
-            return Response({'error': 'Password required'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = DeactivateAccountRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        password = serializer.validated_data.get('password')
         if not request.user.check_password(password):
             return Response({'error': 'Incorrect password'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Read from cookie instead of request body
         refresh_token = request.COOKIES.get('refresh_token')
         if refresh_token:
             try:
@@ -326,22 +383,30 @@ class DeactivateAccountView(APIView):
             user.save(update_fields=['is_active', 'deactivated_at'])
 
         response = Response({'success': True, 'message': 'Account deactivated.'})
-        clear_auth_cookies(response)  # clear cookies on deactivation
+        clear_auth_cookies(response)
         return response
 
 
-@extend_schema(operation_id='delete_account', tags=['Account'])
 class DeleteAccountView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        operation_id='delete_account',
+        tags=['Account'],
+        request=DeleteAccountRequestSerializer,
+        responses={
+            200: SuccessResponseSerializer,
+            400: ErrorResponseSerializer,
+        }
+    )
     def post(self, request):
-        password = request.data.get('password')
-        if not password:
-            return Response({'error': 'Password required'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = DeleteAccountRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        password = serializer.validated_data.get('password')
         if not request.user.check_password(password):
             return Response({'error': 'Incorrect password'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Read from cookie instead of request body
         refresh_token = request.COOKIES.get('refresh_token')
         if refresh_token:
             try:
@@ -359,14 +424,21 @@ class DeleteAccountView(APIView):
             user.save(update_fields=['is_deleted', 'deleted_at', 'is_active'])
 
         response = Response({'success': True, 'message': 'Account deleted.'})
-        clear_auth_cookies(response)  # clear cookies on deletion
+        clear_auth_cookies(response)
         return response
 
 
-@extend_schema(operation_id='reactivate_confirm', tags=['Account'])
 class ReactivateConfirmView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        operation_id='reactivate_confirm',
+        tags=['Account'],
+        responses={
+            200: ReactivateResponseSerializer,
+            400: ErrorResponseSerializer,
+        }
+    )
     def post(self, request, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
@@ -394,7 +466,6 @@ class ReactivateConfirmView(APIView):
         else:
             user.reactivate()
 
-        # Set tokens as cookies instead of returning in body
         tokens = get_tokens_for_user(user)
         response = Response({
             'message': 'Account reactivated successfully.',
