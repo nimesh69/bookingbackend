@@ -92,9 +92,11 @@ class TurfCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Turf
         fields = [
-            'venue', 'sport', 'name', 'description', 'price_per_hour',
-            'max_players', 'court_count', 'opening_time', 'closing_time', 'status'
+            'id', 'venue', 'sport', 'name', 'description', 'price_per_hour',
+            'max_players', 'court_count', 'opening_time', 'closing_time', 'avg_rating',
+            'status', 'created_at', 'updated_at'
         ]
+        read_only_fields = ['id', 'avg_rating', 'created_at', 'updated_at']
 
 
 class VenueDetailSerializer(serializers.ModelSerializer):
@@ -172,4 +174,5 @@ class VenueCreateUpdateSerializer(serializers.ModelSerializer):
     """Serializer for creating and updating venues"""
     class Meta:
         model = Venue
-        fields = ['name', 'location', 'amenities', 'status']
+        fields = ['id', 'name', 'location', 'amenities','cover_image', 'status', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
