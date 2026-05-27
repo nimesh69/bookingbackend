@@ -8,7 +8,8 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
-
+import os, shutil
+from django.db import transaction
 from .models import Venue, Turf, TurfImage, TurfReview, VenueVerification
 from .serializers import (
     VenueListSerializer, VenueDetailSerializer, VenueCreateUpdateSerializer,
@@ -171,6 +172,113 @@ class VenueViewSet(viewsets.ModelViewSet):
                 'verified': verification.verified,
                 'created_at': verification.created_at.isoformat()
             }, status=status.HTTP_201_CREATED)
+        
+    @action(
+        detail=False,
+        methods=['post'],
+        permission_classes=[IsAuthenticated],
+        url_path='create-full'
+    )
+    def create_full(self, request):
+        """
+        POST /api/venues/create-full/
+        Single atomic endpoint: creates venue + turfs + images together.
+        If anything fails, everything is rolled back.
+
+        multipart/form-data fields:
+            venue_name, venue_location, venue_description, venue_cover (file)
+            turfs         — JSON string: [{"name":..., "sport":..., "price_per_hour":...}, ...]
+            turf_images_0 — files for turf index 0
+            turf_images_1 — files for turf index 1
+            ...
+        """
+        venue = None
+        try:
+            with transaction.atomic():
+                venue = self._atomic_create_venue(request)
+                turfs = self._atomic_create_turfs(request, venue)
+                self._atomic_attach_images(request.FILES, turfs)
+
+            return Response(
+                {"venue_id": str(venue.id)},
+                status=status.HTTP_201_CREATED
+            )
+
+        except Exception as e:
+            # DB already rolled back by atomic()
+            # Manually clean up any files written to disk
+            if venue:
+                self._cleanup_venue_files(venue.id)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    # ── private helpers ───────────────────────────────────────────────
+
+    def _atomic_create_venue(self, request):
+        import json
+        data = {
+            'name': request.data.get('venue_name'),
+            'location': request.data.get('venue_location'),
+            'description': request.data.get('venue_description'),
+        }
+        serializer = VenueCreateUpdateSerializer(data=data, context={'request': request})
+        if not serializer.is_valid():
+            raise ValueError(serializer.errors)
+
+        venue = serializer.save(owner=request.user)
+
+        # Attach cover image if provided
+        if 'venue_cover' in request.FILES:
+            venue.cover_image = request.FILES['venue_cover']
+            venue.save()
+
+        return venue
+
+    def _atomic_create_turfs(self, request, venue):
+        import json
+        raw = request.data.get('turfs')
+        if not raw:
+            raise ValueError("turfs field is required")
+
+        try:
+            turfs_data = json.loads(raw)   # parse JSON string from multipart
+        except json.JSONDecodeError:
+            raise ValueError("turfs must be valid JSON")
+
+        if not isinstance(turfs_data, list) or len(turfs_data) == 0:
+            raise ValueError("At least one turf is required")
+
+        turfs = []
+        for turf_data in turfs_data:
+            serializer = TurfCreateUpdateSerializer(
+                data={**turf_data, 'venue': venue.id},
+                context={'request': request}
+            )
+            if not serializer.is_valid():
+                raise ValueError(f"Turf error: {serializer.errors}")
+            turf = serializer.save()
+            turfs.append(turf)
+
+        return turfs
+
+    def _atomic_attach_images(self, files, turfs):
+        for index, turf in enumerate(turfs):
+            key = f'turf_images_{index}'
+            images = files.getlist(key)
+
+            if not images:
+                raise ValueError(f"Images are required for turf at index {index}")
+
+            if len(images) > 5:
+                raise ValueError(f"Max 5 images allowed for turf at index {index}")
+
+            for order, img in enumerate(images):
+                TurfImage.objects.create(turf=turf, image=img, order=order)
+
+    def _cleanup_venue_files(self, venue_id):
+        """Remove all files written to disk for this venue"""
+        venue_dir = os.path.join('media', 'venues', str(venue_id))
+        if os.path.exists(venue_dir):
+            shutil.rmtree(venue_dir)
 
 
 class TurfViewSet(viewsets.ModelViewSet):

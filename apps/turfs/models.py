@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
+from .save_image import venue_cover_path, venue_verification_path, turf_image_path
 
 User = get_user_model()
 
@@ -41,7 +42,7 @@ class Venue(BaseModel):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     deleted_at = models.DateTimeField(null=True, blank=True, help_text="Soft delete timestamp")
     cover_image = models.ImageField(
-    upload_to='venues/covers/',
+    upload_to=venue_cover_path,
     null=True,
     blank=True
     )
@@ -66,20 +67,20 @@ class VenueVerification(BaseModel):
         related_name='verification'
     )
 
-    citizenship_front = models.ImageField(
-        upload_to='venue_verification/citizenship/'
+    citizenship_front = models.FileField(
+        upload_to=venue_verification_path
     )
 
-    citizenship_back = models.ImageField(
-        upload_to='venue_verification/citizenship/'
+    citizenship_back = models.FileField(
+        upload_to=venue_verification_path
     )
 
-    pan_card = models.ImageField(
-        upload_to='venue_verification/pan/'
+    pan_card = models.FileField(
+        upload_to=venue_verification_path
     )
 
-    business_registration = models.ImageField(
-        upload_to='venue_verification/business/'
+    business_registration = models.FileField(
+        upload_to=venue_verification_path
     )
 
     verified = models.BooleanField(default=False)
@@ -150,7 +151,7 @@ class TurfImage(BaseModel):
     """Images for an individual turf/court"""
     id  = models.AutoField(primary_key=True)
     turf = models.ForeignKey(Turf, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='turf_images/')
+    image = models.ImageField(upload_to=turf_image_path)
     order = models.PositiveIntegerField(default=0, help_text="Display order, lower = first")
 
     class Meta:
