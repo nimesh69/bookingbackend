@@ -200,7 +200,7 @@ class VenueViewSet(viewsets.ModelViewSet):
                 self._atomic_attach_images(request.FILES, turfs)
 
             return Response(
-                {"venue_id": str(venue.id)},
+                {"id": str(venue.id)},
                 status=status.HTTP_201_CREATED
             )
 
@@ -215,10 +215,19 @@ class VenueViewSet(viewsets.ModelViewSet):
 
     def _atomic_create_venue(self, request):
         import json
+        
+        # Extract amenities from JSON string
+        amenities_str = request.data.get('venue_amenities', '{}')
+        try:
+            amenities = json.loads(amenities_str)
+        except json.JSONDecodeError:
+            amenities = {}
+        
         data = {
             'name': request.data.get('venue_name'),
             'location': request.data.get('venue_location'),
             'description': request.data.get('venue_description'),
+            'amenities': amenities,
         }
         serializer = VenueCreateUpdateSerializer(data=data, context={'request': request})
         if not serializer.is_valid():
