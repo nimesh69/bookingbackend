@@ -7,3 +7,4 @@ makefile
 *.sql
 *.json
 staticfiles
+media
