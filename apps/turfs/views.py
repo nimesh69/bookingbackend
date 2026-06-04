@@ -131,6 +131,7 @@ class VenueViewSet(viewsets.ModelViewSet):
                     'venue': str(verification.venue.id),
                     'verified': verification.verified,
                     'rejection_reason': verification.rejection_reason,
+                    'verified_at':verification.verified_at.isoformat() if verification.verified_at else None,
                     'submitted_at': verification.created_at.isoformat() if verification.created_at else None
                 })
             except VenueVerification.DoesNotExist:
