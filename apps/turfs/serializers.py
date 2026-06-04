@@ -125,7 +125,7 @@ class VenueListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Venue
-        fields = ['id', 'name', 'location', 'status', 'cover_image', 'turfs_count', 'created_at']
+        fields = ['id', 'name', 'location', 'status', 'cover_image', 'turfs_count', 'created_at','owner']
         read_only_fields = ['id', 'created_at']
 
     @extend_schema_field(serializers.IntegerField())
