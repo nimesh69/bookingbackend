@@ -147,7 +147,7 @@ class VenueViewSet(viewsets.ModelViewSet):
                     {'error': 'Only venue owner can submit verification documents'},
                     status=status.HTTP_403_FORBIDDEN
                 )
-            
+
             # Check required files
             required_files = ['citizenship_front', 'citizenship_back', 'pan_card', 'business_registration']
             for file_field in required_files:
@@ -156,23 +156,29 @@ class VenueViewSet(viewsets.ModelViewSet):
                         {'error': f'{file_field} is required'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
-            
-            # Get or create verification
-            verification, created = VenueVerification.objects.get_or_create(venue=venue)
-            
-            # Update files
-            verification.citizenship_front = request.FILES['citizenship_front']
-            verification.citizenship_back = request.FILES['citizenship_back']
-            verification.pan_card = request.FILES['pan_card']
-            verification.business_registration = request.FILES['business_registration']
-            verification.save()
-            
+
+            verification, created = VenueVerification.objects.update_or_create(
+                venue=venue,
+                defaults={
+                    # Documents
+                    'citizenship_front': request.FILES['citizenship_front'],
+                    'citizenship_back': request.FILES['citizenship_back'],
+                    'pan_card': request.FILES['pan_card'],
+                    'business_registration': request.FILES['business_registration'],
+                    # Reset verification state back to pending
+                    'verified': False,
+                    'rejection_reason': "",
+                    'verified_at': None,
+                }
+            )
+
             return Response({
                 'id': str(verification.id),
                 'venue': str(verification.venue.id),
                 'verified': verification.verified,
-                'created_at': verification.created_at.isoformat()
-            }, status=status.HTTP_201_CREATED)
+                'submitted_at': verification.created_at.isoformat(),
+                'message': 'Verification documents submitted successfully' if created else 'Verification documents resubmitted, pending review'
+            }, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
         
     @action(
         detail=False,
