@@ -4,10 +4,14 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 class CookieJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
-        # Try cookie first, fall back to Authorization header
         raw_token = request.COOKIES.get('access_token')
+        
         if raw_token is None:
-            return super().authenticate(request)   # header fallback (WebSocket, mobile, etc.)
+            # Only fall back to header if Authorization header actually exists
+            if request.headers.get('Authorization'):
+                return super().authenticate(request)
+            return None  # No cookie, no header → anonymous
+        
         try:
             validated = self.get_validated_token(raw_token)
             return self.get_user(validated), validated
