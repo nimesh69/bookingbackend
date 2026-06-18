@@ -1,4 +1,4 @@
-Django==5.0.6
+Django==5.2.14
 djangorestframework==3.15.2
 django-filter==24.2
 
@@ -64,11 +64,11 @@ gunicorn==22.0.0
 # Dev tools (optional)
 
 django-extensions==3.2.3
-python-dotenv
-requests
-django-allauth 
+python-dotenv == 1.2.2
+requests == 2.32.3
+django-allauth == 65.16.1
 dj-rest-auth
-django-appointment
-django_q2
-channels_redis
-uvicorn
+django-appointment == 3.10.0
+django_q2 == 1.9.0
+uvicorn == 0.47.0
+django-unfold == 0.91.0

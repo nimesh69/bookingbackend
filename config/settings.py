@@ -193,8 +193,12 @@ CSRF_COOKIE_SAMESITE = "Lax"
 # CSRF_COOKIE_SAMESITE = "None"
 SESSION_COOKIE_SECURE = False  # True only in HTTPS
 CSRF_COOKIE_SECURE = False
-ACCESS_TOKEN_LIFETIME_SECONDS = 60 * 15        # 15 minutes
-REFRESH_TOKEN_LIFETIME_SECONDS = 60 * 60 * 24 * 7  # 7 days
+ACCESS_TOKEN_LIFETIME_SECONDS = int(
+    SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds()   # match your SIMPLE_JWT setting
+)
+REFRESH_TOKEN_LIFETIME_SECONDS = int(
+    SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds()
+)
 # Custom User Model
 AUTH_USER_MODEL = "users.User"
 CORS_ALLOWED_ORIGINS = [
@@ -202,3 +206,36 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+
+# -----------------------------
+# Email
+# -----------------------------
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# EMAIL_HOST = "smtp.gmail.com"
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+# EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# PASSWORD_RESET_TIMEOUT = 3600
+# REST_FRAMEWORK = {
+#     "DEFAULT_AUTHENTICATION_CLASSES": (
+#         "register.authentication.CookieJWTAuthentication",
+#     ),
+#     "DEFAULT_PERMISSION_CLASSES": (
+#         "rest_framework.permissions.IsAuthenticated",
+#     ),
+#     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+#     "DEFAULT_THROTTLE_RATES" : {
+#     "enrollment_user":    "500/day",
+#     "enrollment_ip":      "500/day",
+#     "verification_user":  "300/hour",  
+#     "decode_image":        "500/day", 
+#     "encode_image":        "500/day", 
+#     "login_user":         "500/min", 
+#     "signup_user":        "100/hour",  
+#     "password_reset":      "50/hour",  
+#     "login_ip":           "5000/hour", 
+# },
+#     'NUM_PROXIES': 1, 
+# }

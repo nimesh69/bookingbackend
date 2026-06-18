@@ -121,7 +121,7 @@ class VenueDetailSerializer(serializers.ModelSerializer):
 class VenueListSerializer(serializers.ModelSerializer):
     """List serializer for venues"""
     turfs_count = serializers.SerializerMethodField()
-    cover_image = serializers.StringRelatedField(read_only=True)
+    cover_image = serializers.ImageField(read_only=True)
 
     class Meta:
         model = Venue

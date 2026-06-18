@@ -40,6 +40,7 @@ User = get_user_model()
 def get_tokens_for_user(user):
     """Generate JWT access + refresh token pair for a user."""
     refresh = RefreshToken.for_user(user)
+    refresh["role"] = user.role
     return {
         'refresh': str(refresh),
         'access': str(refresh.access_token),
@@ -183,7 +184,7 @@ class LogoutView(APIView):
 
 class SignupView(APIView):
     permission_classes = [AllowAny]
-
+    authentication_classes = []
     @extend_schema(
         operation_id='signup',
         tags=['Auth'],
@@ -233,7 +234,7 @@ class _EmptyRequestSerializer(drf_serializers.Serializer):
 class TokenRefreshCookieView(APIView):
     """Replaces SimpleJWT's TokenRefreshView — reads from cookie."""
     permission_classes = [AllowAny]
-
+    authentication_classes = []
     @extend_schema(
         operation_id='token_refresh',
         tags=['Auth'],
@@ -266,7 +267,7 @@ class TokenRefreshCookieView(APIView):
 
 class PasswordResetView(APIView):
     permission_classes = [AllowAny]
-
+    authentication_classes = []
     @extend_schema(
         operation_id='password_reset',
         tags=['Auth'],
@@ -305,7 +306,7 @@ class MeView(APIView):
         
 class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
-
+    authentication_classes = []
     @extend_schema(
         operation_id='password_reset_confirm',
         tags=['Auth'],
