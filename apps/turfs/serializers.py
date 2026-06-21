@@ -75,8 +75,8 @@ class TurfListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Turf
         fields = [
-            'id', 'venue', 'venue_name', 'sport', 'name', 'price_per_hour',
-            'max_players', 'avg_rating', 'status', 'cover_image', 'created_at'
+            'id', 'venue', 'venue_name', 'sport', 'name', 'price_per_hour','description',
+            'max_players', 'avg_rating', 'status', 'cover_image', 'created_at','opening_time','closing_time'
         ]
         read_only_fields = ['id', 'created_at']
 
