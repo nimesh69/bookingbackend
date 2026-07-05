@@ -100,8 +100,7 @@ class TurfCreateUpdateSerializer(serializers.ModelSerializer):
 
 
 class VenueDetailSerializer(serializers.ModelSerializer):
-    """Detailed venue serializer with nested turfs"""
-    turfs = TurfListSerializer(many=True, read_only=True)
+    turfs = serializers.SerializerMethodField()
     turfs_count = serializers.SerializerMethodField()
     cover_image = serializers.StringRelatedField(read_only=True)
 
@@ -112,6 +111,11 @@ class VenueDetailSerializer(serializers.ModelSerializer):
             'cover_image', 'turfs', 'turfs_count', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'owner', 'created_at', 'updated_at']
+
+    @extend_schema_field(TurfListSerializer(many=True))
+    def get_turfs(self, obj):
+        active_turfs = obj.turfs.filter(deleted_at__isnull=True)
+        return TurfListSerializer(active_turfs, many=True, context=self.context).data
 
     @extend_schema_field(serializers.IntegerField())
     def get_turfs_count(self, obj) -> int:
