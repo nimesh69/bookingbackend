@@ -16,8 +16,9 @@ from .serializers import (
     TurfListSerializer, TurfDetailSerializer, TurfCreateUpdateSerializer,
     TurfImageSerializer, TurfReviewSerializer, VenueVerificationSerializer
 )
-
-
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import ValidationError
+from .checkOwnerPassword import verify_owner_password_or_403
 class IsOwnerOrReadOnly:
     """Custom permission: write access only to owner"""
     def has_object_permission(self, request, view, obj):
@@ -90,6 +91,14 @@ class VenueViewSet(viewsets.ModelViewSet):
         instance.deleted_at = timezone.now()
         instance.save()
 
+    @action(detail=True, methods=['post'], url_path='confirm-delete')
+    def confirm_delete(self, request, pk=None):
+        venue = self.get_object()
+        verify_owner_password_or_403(request, venue.owner)
+        venue.deleted_at = timezone.now()
+        venue.save()
+        return Response({'message': 'Venue deleted successfully.'}, status=status.HTTP_200_OK)
+    
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def my_venues(self, request):
         """Get all venues owned by logged-in user"""
@@ -359,6 +368,14 @@ class TurfViewSet(viewsets.ModelViewSet):
         instance.deleted_at = timezone.now()
         instance.save()
 
+    @action(detail=True, methods=['post'], url_path='confirm-delete')
+    def confirm_delete(self, request, pk=None):
+        turf = self.get_object()
+        verify_owner_password_or_403(request, turf.venue.owner)
+        turf.deleted_at = timezone.now()
+        turf.save()
+        return Response({'message': 'Truf deleted successfully.'}, status=status.HTTP_200_OK)
+    
     @action(detail=True, methods=['get'])
     def availability(self, request, pk=None):
         """
