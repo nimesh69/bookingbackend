@@ -514,7 +514,14 @@ class TurfViewSet(viewsets.ModelViewSet):
 
         if request.method == 'PATCH':
             order = request.data.get('order')
+            new_image = request.FILES.get('image')
 
+            #replace image
+            if new_image:
+                if image.image:
+                    image.image.delete(save=False)
+                image.image = new_image
+                
             if order is not None:
                 image.order = order
 
