@@ -530,6 +530,7 @@ class TurfViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         elif request.method == 'DELETE':
+            verify_owner_password_or_403(request, turf.venue.owner)
             image.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
