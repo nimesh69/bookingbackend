@@ -48,7 +48,7 @@ class TurfReviewSerializer(serializers.ModelSerializer):
 class TurfDetailSerializer(serializers.ModelSerializer):
     """Detailed serializer for turf with nested images and reviews"""
     images = TurfImageSerializer(many=True, read_only=True)
-    reviews = TurfReviewSerializer(many=True, read_only=True)
+    # reviews = TurfReviewSerializer(many=True, read_only=True)
     reviews_count = serializers.SerializerMethodField()
     venue_name = serializers.CharField(source='venue.name', read_only=True)
 
@@ -57,7 +57,7 @@ class TurfDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'venue', 'venue_name', 'sport', 'name', 'description',
             'price_per_hour', 'max_players', 'court_count', 'opening_time',
-            'closing_time', 'avg_rating', 'status', 'images', 'reviews',
+            'closing_time', 'avg_rating', 'status', 'images',
             'reviews_count', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'avg_rating', 'created_at', 'updated_at']
@@ -103,7 +103,6 @@ class VenueDetailSerializer(serializers.ModelSerializer):
     turfs = serializers.SerializerMethodField()
     turfs_count = serializers.SerializerMethodField()
     cover_image = serializers.StringRelatedField(read_only=True)
-
     class Meta:
         model = Venue
         fields = [
@@ -126,15 +125,20 @@ class VenueListSerializer(serializers.ModelSerializer):
     """List serializer for venues"""
     turfs_count = serializers.SerializerMethodField()
     cover_image = serializers.ImageField(read_only=True)
+    venue_sports = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Venue
-        fields = ['id', 'name', 'location', 'status', 'cover_image', 'turfs_count', 'created_at','owner','amenities']
+        fields = ['id', 'name', 'location', 'status', 'cover_image', 'turfs_count', 'created_at','owner','amenities','venue_sports']
         read_only_fields = ['id', 'created_at']
 
     @extend_schema_field(serializers.IntegerField())
     def get_turfs_count(self, obj) -> int:
         return obj.turfs.filter(deleted_at__isnull=True).count()
+    
+    @extend_schema_field(serializers.ListField(child=serializers.CharField()))
+    def get_venue_sports(self, obj):
+        return list(obj.turfs.filter(deleted_at__isnull=True).order_by().values_list("sport", flat=True).distinct())
 
 class VenueVerificationSerializer(serializers.ModelSerializer):
     """Serializer for venue verification - for admin panel only"""
