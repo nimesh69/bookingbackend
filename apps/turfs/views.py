@@ -19,6 +19,7 @@ from .serializers import (
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ValidationError
 from .checkOwnerPassword import verify_owner_password_or_403
+from django.db.models import F
 class IsOwnerOrReadOnly:
     """Custom permission: write access only to owner"""
     def has_object_permission(self, request, view, obj):
@@ -528,10 +529,37 @@ class TurfViewSet(viewsets.ModelViewSet):
             image.save()
             serializer = TurfImageSerializer(image)
             return Response(serializer.data)
+        # Option 1: Shift only the images after the deleted one(performs a single SQL update and scales much better.)
+        # elif request.method == "DELETE":
+        #     verify_owner_password_or_403(request, turf.venue.owner)
 
-        elif request.method == 'DELETE':
+        #     with transaction.atomic():
+        #         deleted_order = image.order
+
+        #         image.delete()
+
+        #         TurfImage.objects.filter(
+        #             turf=turf,
+        #             order__gt=deleted_order
+        #         ).update(order=F("order") - 1)
+
+        #     return Response(status=status.HTTP_204_NO_CONTENT)
+        # Option 2: Renumber everything
+        elif request.method == "DELETE":
             verify_owner_password_or_403(request, turf.venue.owner)
-            image.delete()
+
+            with transaction.atomic():
+                image.delete()
+
+                remaining = TurfImage.objects.filter(
+                    turf=turf
+                ).order_by("order", "created_at")
+
+                for index, img in enumerate(remaining):
+                    if img.order != index:
+                        img.order = index
+                        img.save(update_fields=["order"])
+
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['get', 'post'], permission_classes=[IsAuthenticatedOrReadOnly])
